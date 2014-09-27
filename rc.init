@@ -20,12 +20,9 @@ echo -e "                           \e[34m;####                 ####;\e[0m"
 echo -e "                           \e[34m##'                     '##\e[0m"
 echo -e "                          \e[34m#'                         '#\e[0m"
 
-#echo > /etc/mtab
-#echo "/dev/sda4 / ext4 rw 0 0" > /etc/mtab
 export PATH
 
 echo Mounting filesystems
-#mount -o remount,rw /
 mkdir -p /dev/{pts,shm}
 
 mount -t proc proc /proc -o nosuid,noexec,nodev
@@ -36,8 +33,6 @@ mount -t devtmpfs dev /dev -o mode=0755,nosuid
 mkdir -p /dev/{pts,shm}
 mount -t devpts devpts /dev/pts -o mode=0620,gid=5,nosuid,noexec
 mount -t tmpfs shm /dev/shm -o mode=1777,nosuid,nodev
-
-#cp /proc/mounts /etc/mtab
 
 echo Running udev
 /usr/lib/systemd/systemd-udevd --daemon
@@ -68,7 +63,6 @@ echo Setting hostname
 cat /etc/hostname >| /proc/sys/kernel/hostname
 
 echo Bringing up the lo interface
-#ifconfig lo up
 ip link set dev lo up
 
 #ip link set dev eth0 up
@@ -84,17 +78,13 @@ sudo chmod g+w /run/lock/lockdev
 mkdir /run/dbus	
 dbus-daemon --system
 
-#svc -c
 svc -s
 
 : > /var/run/utmp
 chmod a+w /var/run/utmp #Should this be necesary???
 
-#kmscon --vt /dev/tty1 --silent &
-#sh -c 'respawn getty /dev/tty1 linux /bin/login' &>/dev/null &
 sh -c 'respawn getty /dev/tty1 linux' &>/dev/null &
 sh -c 'respawn getty /dev/tty2 linux' &>/dev/null &
 sh -c 'respawn getty /dev/tty3 linux' &>/dev/null &
 sh -c 'respawn getty /dev/tty4 linux' &>/dev/null &
 sh -c 'respawn getty /dev/tty5 linux' &>/dev/null &
-#exec sh -c 'while :; do echo; getty /dev/tty1 linux; done'
