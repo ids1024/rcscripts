@@ -29,7 +29,6 @@ mount -t proc proc /proc -o nosuid,noexec,nodev
 mount -t sysfs sys /sys -o nosuid,noexec,nodev
 mount -t tmpfs run /run -o mode=0755,nosuid,nodev
 mount -t devtmpfs dev /dev -o mode=0755,nosuid
-#mount -n -t tmpfs -o nosuid,mode=0755 dev /dev
 mkdir -p /dev/{pts,shm}
 mount -t devpts devpts /dev/pts -o mode=0620,gid=5,nosuid,noexec
 mount -t tmpfs shm /dev/shm -o mode=1777,nosuid,nodev
@@ -39,23 +38,8 @@ echo Running udev
 /usr/bin/udevadm trigger --action=add --type=subsystems
 /usr/bin/udevadm trigger --action=add --type=devices
 
-#FOR SMDEV ONLY
-#mount -t debugfs none /sys/kernel/debug 
-#mkdir -p /dev/bus/usb
-#mount --bind /sys/kernel/debug/usb/ /dev/bus/usb
-
-#echo Running smdev
-#smdev -s
-
 echo Setting smdev as the kernel hotplug
 echo /usr/local/bin/smdev > /proc/sys/kernel/hotplug
-
-#From mdev-like-a-boss
-#ln -snf /proc/self/fd /dev/fd
-#ln -snf fd/0 /dev/stdin
-#ln -snf fd/1 /dev/stdout
-#ln -snf fd/2 /dev/stderr
-#[ -e /proc/kcore ] && ln -snf /proc/kcore /dev/core
 
 mount -a
 
