@@ -46,9 +46,6 @@ cat /etc/hostname >| /proc/sys/kernel/hostname
 echo Bringing up the lo interface
 ip link set dev lo up
 
-#ip link set dev eth0 up
-#ip addr add 10.0.0.1/24 nodad broadcast 10.0.0.255 dev eth0
-
 echo Activating swap
 swapon -U 9b2fc51b-11c5-4993-8519-ec4e4b7224c0
 
