@@ -1,0 +1,100 @@
+#!/bin/sh
+
+#https://bbs.archlinux.org/viewtopic.php?id=185135
+echo -e "                                        \e[34m+\e[0m"
+echo -e "                                        \e[34m#\e[0m"
+echo -e "                                       \e[34m###\e[0m"
+echo -e "                                      \e[34m#####\e[0m"
+echo -e "                                      \e[34m######\e[0m"
+echo -e "                                     \e[34m; #####;\e[0m"
+echo -e "                                    \e[34m+##.#####\e[0m"
+echo -e "                                   \e[34m+##########\e[0m"
+echo -e "                                  \e[34m#############;\e[0m"
+echo -e "                                 \e[34m###############+\e[0m"
+echo -e "                                \e[34m#######   #######\e[0m"
+echo -e "                              \e[34m.######;     ;###;''.\e[0m"
+echo -e "                             \e[34m.#######;     ;#####.\e[0m"
+echo -e "                             \e[34m#########.   .########'\e[0m"
+echo -e "                            \e[34m######'           '######\e[0m"
+echo -e "                           \e[34m;####                 ####;\e[0m"
+echo -e "                           \e[34m##'                     '##\e[0m"
+echo -e "                          \e[34m#'                         '#\e[0m"
+
+#echo > /etc/mtab
+#echo "/dev/sda4 / ext4 rw 0 0" > /etc/mtab
+export PATH
+
+echo Mounting filesystems
+#mount -o remount,rw /
+mkdir -p /dev/{pts,shm}
+
+mount -t proc proc /proc -o nosuid,noexec,nodev
+mount -t sysfs sys /sys -o nosuid,noexec,nodev
+mount -t tmpfs run /run -o mode=0755,nosuid,nodev
+mount -t devtmpfs dev /dev -o mode=0755,nosuid
+#mount -n -t tmpfs -o nosuid,mode=0755 dev /dev
+mkdir -p /dev/{pts,shm}
+mount -t devpts devpts /dev/pts -o mode=0620,gid=5,nosuid,noexec
+mount -t tmpfs shm /dev/shm -o mode=1777,nosuid,nodev
+
+#cp /proc/mounts /etc/mtab
+
+echo Running udev
+/usr/lib/systemd/systemd-udevd --daemon
+/usr/bin/udevadm trigger --action=add --type=subsystems
+/usr/bin/udevadm trigger --action=add --type=devices
+
+#FOR SMDEV ONLY
+#mount -t debugfs none /sys/kernel/debug 
+#mkdir -p /dev/bus/usb
+#mount --bind /sys/kernel/debug/usb/ /dev/bus/usb
+
+#echo Running smdev
+#smdev -s
+
+echo Setting smdev as the kernel hotplug
+echo /usr/local/bin/smdev > /proc/sys/kernel/hotplug
+
+#From mdev-like-a-boss
+#ln -snf /proc/self/fd /dev/fd
+#ln -snf fd/0 /dev/stdin
+#ln -snf fd/1 /dev/stdout
+#ln -snf fd/2 /dev/stderr
+#[ -e /proc/kcore ] && ln -snf /proc/kcore /dev/core
+
+mount -a
+
+echo Setting hostname
+cat /etc/hostname >| /proc/sys/kernel/hostname
+
+echo Bringing up the lo interface
+#ifconfig lo up
+ip link set dev lo up
+
+#ip link set dev eth0 up
+#ip addr add 10.0.0.1/24 nodad broadcast 10.0.0.255 dev eth0
+
+echo Activating swap
+swapon -U 9b2fc51b-11c5-4993-8519-ec4e4b7224c0
+
+mkdir -p /run/lock/lockdev
+sudo chown root:lock /run/lock/lockdev
+sudo chmod g+w /run/lock/lockdev
+
+mkdir /run/dbus	
+dbus-daemon --system
+
+#svc -c
+svc -s
+
+: > /var/run/utmp
+chmod a+w /var/run/utmp #Should this be necesary???
+
+#kmscon --vt /dev/tty1 --silent &
+#sh -c 'respawn getty /dev/tty1 linux /bin/login' &>/dev/null &
+sh -c 'respawn getty /dev/tty1 linux' &>/dev/null &
+sh -c 'respawn getty /dev/tty2 linux' &>/dev/null &
+sh -c 'respawn getty /dev/tty3 linux' &>/dev/null &
+sh -c 'respawn getty /dev/tty4 linux' &>/dev/null &
+sh -c 'respawn getty /dev/tty5 linux' &>/dev/null &
+#exec sh -c 'while :; do echo; getty /dev/tty1 linux; done'

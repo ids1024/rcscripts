@@ -1,0 +1,47 @@
+#!/bin/sh
+
+#PATH=/bin
+
+#. /etc/rc.conf
+
+case "$1" in
+reboot|poweroff)
+	;;
+*)
+	echo "Invalid action '$1' for rc.shutdown" 1>&2
+	exit 1
+	;;
+esac
+
+echo Shutting down
+
+svc -k
+
+#kill -s TERM -1
+killall5 -s TERM
+sleep 1
+#kill -s KILL -1
+killall5 -s KILL
+
+echo Mounting root read-only
+mount -o remount,ro /
+
+#[ -e /proc/sys/kernel/hotplug ] && echo > /proc/sys/kernel/hotplug #From mdev-like-a-boss
+
+echo Unmounting filesystems
+umount -a
+
+sync
+#sleep 3
+wait
+
+#echo bye
+
+case "$1" in
+reboot)
+	halt -r
+	;;
+poweroff)
+	halt -p
+	;;
+esac
