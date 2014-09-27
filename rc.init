@@ -38,9 +38,6 @@ echo Running udev
 /usr/bin/udevadm trigger --action=add --type=subsystems
 /usr/bin/udevadm trigger --action=add --type=devices
 
-echo Setting smdev as the kernel hotplug
-echo /usr/local/bin/smdev > /proc/sys/kernel/hotplug
-
 mount -a
 
 echo Setting hostname
