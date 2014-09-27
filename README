@@ -1,0 +1,4 @@
+Simple rc script for use with sinit. Uses svc for managing services.
+
+http://tools.suckless.org/sinit
+http://git.r-36.net/svc/
