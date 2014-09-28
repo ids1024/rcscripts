@@ -28,15 +28,29 @@ mkdir -p /dev/{pts,shm}
 mount -t proc proc /proc -o nosuid,noexec,nodev
 mount -t sysfs sys /sys -o nosuid,noexec,nodev
 mount -t tmpfs run /run -o mode=0755,nosuid,nodev
+#mount -n -t tmpfs -o nosuid,mode=0755 dev /dev
 mount -t devtmpfs dev /dev -o mode=0755,nosuid
 mkdir -p /dev/{pts,shm}
 mount -t devpts devpts /dev/pts -o mode=0620,gid=5,nosuid,noexec
 mount -t tmpfs shm /dev/shm -o mode=1777,nosuid,nodev
 
-echo Running udev
-/usr/lib/systemd/systemd-udevd --daemon
-/usr/bin/udevadm trigger --action=add --type=subsystems
-/usr/bin/udevadm trigger --action=add --type=devices
+#Make libusb work with smdev
+#mkdir -p /dev/bus/usb/{devices,drivers}
+#mount --bind /sys/bus/usb/devices /dev/bus/usb/devices
+#mount --bind /sys/bus/usb/drivers /dev/bus/usb/drivers
+
+echo Running smdev
+smdev -s
+
+echo Setting smdev as the kernel hotplug
+echo /usr/local/bin/smdev > /proc/sys/kernel/hotplug
+
+#From mdev-like-a-boss
+ln -snf /proc/self/fd /dev/fd
+ln -snf fd/0 /dev/stdin
+ln -snf fd/1 /dev/stdout
+ln -snf fd/2 /dev/stderr
+[ -e /proc/kcore ] && ln -snf /proc/kcore /dev/core
 
 mount -a
 
