@@ -1,4 +1,6 @@
-Simple rc script for use with sinit. Uses svc for managing services.
+Simple rc script for use with sinit. Uses svc for managing services and smdev as a replacement for udev. The shutdown script uses halt and killall5 from ubase.
 
 http://tools.suckless.org/sinit
-http://git.r-36.net/svc/
+http://git.2f30.org/smdev
+http://git.r-36.net/svc
+http://tools.suckless.org/ubase
